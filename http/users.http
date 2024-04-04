@@ -1,0 +1,17 @@
+@url = http://127.0.0.1:3000/api/users
+
+### C - CREATE
+POST {{ url }}/create
+content-type: application/json
+
+### R - READ
+GET {{ url }}/read
+content-type: application/json
+
+### U - UPDATE
+PUT {{ url }}/update
+content-type: application/json
+
+### D - DELETE
+DELETE {{ url }}/delte
+content-type: application/json
