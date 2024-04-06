@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     const token = authHeader.split(" ")[1]
     try {
         jwt.verify(token, process.env.JWT_SECRET)
-        return true
+        return
     } catch (error) {
         console.error('Error verifyling token: ', error)
         return createError({ statusCode: 401, statusMessage: 'Unauthorized: Invalid token' })    
