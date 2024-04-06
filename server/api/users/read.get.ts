@@ -1,13 +1,22 @@
 import prisma from "~/server/utils/db"
 
 export default defineEventHandler(async (event) => {
-    await prisma.users.findMany().then((result) => {
+    try {
+        const users = await prisma.users.findMany({
+            select: {
+                phone: true,
+                email: true,
+                name: true
+            }
+        })
         return {
             status: 200,
-            data: result,
+            data: users,
             message: 'Successfully !'
         }
-    }).catch((error) => {
-        return createError({ status: 500, message: error.message })
-    })
+    } catch (error) {
+        console.error('Error: ', error)
+        return createError({ statusCode: 500, statusMessage: "An error has occurred !" })
+    }
+    
 })
