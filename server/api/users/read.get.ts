@@ -1,14 +1,8 @@
-import prisma from "~/server/utils/db"
+import { getUsers } from "../../db/users"
 
 export default defineEventHandler(async (event) => {
     try {
-        const users = await prisma.users.findMany({
-            select: {
-                phone: true,
-                email: true,
-                name: true
-            }
-        })
+        const users = await getUsers({ phone: true })
         return {
             status: 200,
             data: users,
