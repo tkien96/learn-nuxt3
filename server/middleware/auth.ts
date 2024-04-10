@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
 
 export default defineEventHandler(async (event) => {
+    const requestPath = event.req.url;
+    if (requestPath && !requestPath.startsWith("/api/auth", 9)) return;
     const authHeader = event.req.headers.authorization;
     if (!authHeader?.startsWith("Bearer "))
         return createError({
@@ -9,7 +11,8 @@ export default defineEventHandler(async (event) => {
         });
     const token = authHeader.split(" ")[1];
     try {
-        jwt.verify(token, process.env.JWT_SECRET);
+        const config = useRuntimeConfig();
+        jwt.verify(token, config.jwtAccessSecret);
         return;
     } catch (error) {
         console.error("Error verifyling token: ", error);

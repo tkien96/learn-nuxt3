@@ -1,18 +1,18 @@
 import jwt from "jsonwebtoken";
 import { IUser } from "../types/user";
+import { tranformerUser } from "../models/users";
 
 const generateAccessToken = (user: IUser) => {
     const config = useRuntimeConfig();
 
-    return jwt.sign({ userId: user.id }, config.jwtAccessSecret, {
+    return jwt.sign({ ...tranformerUser(user) }, config.jwtAccessSecret, {
         expiresIn: "24h",
     });
 };
 
 const generateRefreshToken = (user: IUser) => {
     const config = useRuntimeConfig();
-
-    return jwt.sign({ userId: user.id }, config.jwtRefreshSecret, {
+    return jwt.sign({ ...tranformerUser(user) }, config.jwtRefreshSecret, {
         expiresIn: "4h",
     });
 };
@@ -37,10 +37,9 @@ export const decodeAccessToken = (token: String) => {
     }
 };
 
-export const generateTokens = (user: IUser) => {
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
-
+export const generateTokens = (user: IUser | null) => {
+    const accessToken = user === null ? null : generateAccessToken(user);
+    const refreshToken = user === null ? null : generateRefreshToken(user);
     return {
         accessToken: accessToken,
         refreshToken: refreshToken,

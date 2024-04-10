@@ -1,4 +1,4 @@
-import { createUser } from "~/server/db/users"
+import { createUser } from "~/server/models/users"
 import { IUser } from "~/server/types/user"
 
 export default defineEventHandler(async (event) => {
@@ -14,12 +14,11 @@ export default defineEventHandler(async (event) => {
             password
         }
         const user = await createUser(userData)
-        return { data: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            phone: user.phone
-        } }
+        return { 
+            status: 200,
+            message: 'Register Successfully !',
+            data: user,
+        }
     } catch (error) {
         console.error("Error: ", error)
         throw error

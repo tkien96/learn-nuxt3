@@ -1,7 +1,7 @@
 export interface IRefreshToken {
-    id: number;
+    id?: number;
     user_id: number;
     token: string;
-    created_at: Date;
+    created_at?: Date;
     updated_at?: Date;
 }
