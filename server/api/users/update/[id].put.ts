@@ -1,15 +1,16 @@
-import { useRoute } from "vue-router"
-import { getUserBy, updateUser } from "~/server/models/users"
+import { getUsers, getUserBy, updateUser } from "~/server/models/users"
+import { IUserParams, IUserWhere } from "~/server/types/user"
 
 export default defineEventHandler(async (event) => {
     try {
-        const id = useRoute().params.id,
-            data = await readBody(event)
-
+        const id = parseInt(event.context.params!.id), 
+            data = await readBody(event),
+            { email, phone } = data
+        
         if(!id || !data) return sendError(event, createError({ statusCode: 400, statusMessage: 'Invalid params !' }))
         const checkUserExists = await getUserBy('id', id)
         if(!checkUserExists) return sendError(event, createError({ statusCode: 400, statusMessage: 'User not exists !' }))
-        const user = updateUser(parseInt(id), data)
+        const user = await updateUser(id, data)
         return {
             status: 200,
             data: user,

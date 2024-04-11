@@ -11,10 +11,10 @@ export interface IUser {
 }
 
 export interface IUserParams {
-    skip?: number;
-    take?: number;
-    select?: string[];
-    orderBy?: { field: string; derection?: "asc" | "desc" };
+    skip?: number | null;
+    take?: number | null;
+    select?: string[] | null;
+    orderBy?: { field: string; direction?: "asc" | "desc" } | null;
 }
 
 type WhereCondition<T> = T & {
@@ -23,8 +23,20 @@ type WhereCondition<T> = T & {
     NOT?: WhereCondition<T>;
 };
 
-export interface IUserWhere extends IUser {
-    AND?: WhereCondition<IUserWhere>[];
-    OR?: WhereCondition<IUserWhere>[];
-    NOT?: WhereCondition<IUserWhere>;
+export interface IParamsUserWhere {
+    id?: number;
+    name?: string | null;
+    phone?: string | null;
+    email?: string | null;
+    password?: string | null;
+    address?: string | null;
+    avatar?: string | null;
+    created_at?: Date;
+    updated_at?: Date | null;
+}
+
+export interface IUserWhere {
+    AND?: WhereCondition<IUserWhere>[] | [];
+    OR?: WhereCondition<IUserWhere>[] | [];
+    NOT?: WhereCondition<IUserWhere> | null;
 }

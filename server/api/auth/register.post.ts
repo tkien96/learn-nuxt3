@@ -7,12 +7,7 @@ export default defineEventHandler(async (event) => {
         const { email, phone, name, password, repeat_password } = body
         if(!email || !phone || !name || !password) return sendError(event, createError({ statusCode: 401, statusMessage: 'Invalid params' }))
         if(password !== repeat_password) return sendError(event, createError({ statusCode: 401, statusMessage: 'Password do not match !' }))
-        const userData:IUser = {
-            email,
-            phone,
-            name,
-            password
-        }
+        const userData: IUser = {...body}
         const user = await createUser(userData)
         return { 
             status: 200,

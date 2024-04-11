@@ -2,7 +2,7 @@ import { prisma, buildPrismaQueryOptions } from ".";
 import { IUser, IUserParams, IUserWhere } from "../types/user";
 import { hashPassword } from "~/server/utils/bcrypt";
 
-export const getUsers = async (params?: IUserParams, where?: IUserWhere) => {
+export const getUsers = async (params?: IUserParams | null, where?: IUserWhere | null) => {
     try {
         const queryOptions: any = await buildPrismaQueryOptions(params, where);
         const users = await prisma.users.findMany(queryOptions);
@@ -77,10 +77,10 @@ export const updateUser = async (idUser: number, dataUser: IUser[]) => {
     }
 };
 
-export const tranformerUser = (data: IUser | IUser[] | null) => {
+export const tranformerUser = async (data: IUser | IUser[] | null) => {
     if (data === null) return null;
     return Array.isArray(data)
-        ? data.map((u) => ({
+        ? await data.map((u) => ({
               user_id: u.id,
               user_name: u.name,
               phone_number: u.phone,
@@ -90,7 +90,7 @@ export const tranformerUser = (data: IUser | IUser[] | null) => {
               created_at: u.created_at,
               updated_at: u.updated_at,
           }))
-        : {
+        : await {
               user_id: data.id,
               user_name: data.name,
               phone_number: data.phone,
