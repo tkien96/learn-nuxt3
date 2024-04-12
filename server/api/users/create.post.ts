@@ -1,27 +1,26 @@
-// import { getUsers, createUser } from "../../db/users"
+import { MCreate, MRead} from "~/server/models"
+import { tranformerUser } from "~/server/models/users"
+import { IUser } from "~/server/types/user"
 
-// export default defineEventHandler(async (event) => {
-//     const { email, phone, name } = await readBody(event)
-//     if(!email) return createError({ status: 400, message: 'Email is required !' })
-//     if(!phone) return createError({ status: 400, message: 'Phone is required !' })
-//     if(!name) return createError({ status: 400, message: 'Name is required !' })
-
-//     try {
-//         const checkUserExists = await getUsers('id', {OR: [{ email: email }, { phone: phone }]})
-//         if(checkUserExists) return createError({ status: 400, message: 'User already exists !' })
-
-//         const user = await createUser({
-//             email,
-//             phone,
-//             name
-//         })
-//         return {
-//             status: 200,
-//             data: user,
-//             message: 'Successfully !'
-//         }
-//     } catch (error) {
-//         console.error('Error:', error)
-//         return createError({ status: 500, message: 'An error occurred !' })
-//     }
-// })
+export default defineEventHandler(async (event) => {
+    try {
+        const body = await readBody(event)
+        const { email, phone, name, password, repeat_password } = body
+        if(!email || !phone || !name || !password || !repeat_password) return sendError(event, createError({ statusCode: 401, statusMessage: 'Invalid params' }))
+        if(password !== repeat_password) return sendError(event, createError({ statusCode: 401, statusMessage: 'Password do not match !' }))
+        const checkUnique = await MRead("users", { select: ['id'] }, {where: {OR: [{ email: email }, { phone: phone }]}});
+        if (!isEmptyObject(checkUnique)) return sendError(event, createError({ statusCode: 400, statusMessage: "Email or Phone is exists !" }));
+        delete body.repeat_password
+        const userData: IUser = {...body}
+        userData.password = await hashPassword(password)
+        const user = await MCreate('users', userData)
+        return { 
+            status: 200,
+            message: 'Register Successfully !',
+            data: await tranformerUser(user)
+        }
+    } catch (error) {
+        console.error("Error: ", error)
+        throw error
+    }
+})

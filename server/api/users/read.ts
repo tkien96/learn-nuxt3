@@ -1,29 +1,30 @@
-import { IUserParams, IUserWhere } from "~/server/types/user";
-import { getUsers } from "../../models/users";
-import { getData } from "~/server/utils/model";
 import { buildQueryOptions, isEmptyObject } from "~/server/utils/helper";
+import { MRead } from "~/server/models";
+import { tranformerUser } from "~/server/models/users";
+import { IParams, IWhere } from "~/server/types";
+import { IUser } from "~/server/types/user";
 
 export default defineEventHandler(async (event) => {
     try {
-        const query: object = await getQuery(event),
-            params: IUserParams = {},
-            where: IUserWhere = {};
-        if (!isEmptyObject(query)) {
-            where.AND = buildQueryOptions(query);
-            params.select = ['id', 'name', 'phone', 'email']
-            params.orderBy = { field: 'id', direction: 'desc' }
+        let query: any = await getQuery(event),
+            params: IParams = { orderBy: { field: 'id', direction: 'desc' }},
+            where: IWhere | undefined;
+
+        if(query?.page) {
+            const page: number = parseInt(query?.page),
+                pageSize: number = parseInt(query?.page_size) || 10
+            params.skip = page === 1 ? 0 : (page - 1) * pageSize;
+            params.take = pageSize;
+            delete query?.page
+            delete query?.page_size
         }
-        const users = await getData('users', { ...params }, { ...where });
-        return {
-            status: 200,
-            data: users,
-            message: "Successfully!",
-        };
+        let users: IUser | IUser[];
+        if (!isEmptyObject(query)) where = buildQueryOptions(query);
+        users = await MRead('users', params, where);
+        
+        return { status: 200, data: await tranformerUser(users), message: "Successfully!" };
     } catch (error) {
         console.error("Error: ", error);
-        return createError({
-            statusCode: 500,
-            statusMessage: "An error has occurred !",
-        });
+        throw error
     }
 });

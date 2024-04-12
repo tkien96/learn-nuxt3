@@ -4,12 +4,15 @@ export const isEmptyObject = (object: object): boolean => {
 
 export const buildQueryOptions = (query: object) => {
     try {
-        let queryOptions: any = [];
+        const flag = Object.keys(query).length === 1 ? true : false
+        let queryOptions: any = flag ? {} : [];
         for (const [key, value] of Object.entries(query)) {
-            if (key.startsWith("_")) {
-                queryOptions.push({ [key.slice(1)]: Number(value) });
+            if (key.startsWith("#")) {
+                flag ? queryOptions = { ...queryOptions, ...{ [key.slice(1)]: parseInt(value) } } : queryOptions.push({ [key.slice(1)]: parseInt(value) });
+            } else if (key.startsWith("_")) {
+                flag ? queryOptions = { ...queryOptions, ...{ [key.slice(1)]: value } } : queryOptions.push({ [key.slice(1)]: value });
             } else {
-                queryOptions.push({ [key]: { contains: `%${value}%` } });
+                flag ? queryOptions = { ...queryOptions, ...{ [key]: { contains: `%${value}%` } } } : queryOptions.push({ [key]: { contains: `%${value}%` } });
             }
         }
         return queryOptions;
