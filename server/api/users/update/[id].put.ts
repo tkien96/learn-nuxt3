@@ -1,4 +1,4 @@
-import { MRead, MUpdate } from "~/server/models";
+import { MReadUnique, MUpdate } from "~/server/models";
 import { tranformerUser } from "~/server/models/users";
 
 export default defineEventHandler(async (event) => {
@@ -8,13 +8,13 @@ export default defineEventHandler(async (event) => {
             { email, phone } = data;
 
         if (!id || !data) return sendError(event,  createError({ statusCode: 400, statusMessage: "Invalid params !" }));
-        const checkUserExists = await MRead('users', { select: ['id'] }, { where: { id: id } }, 'unique');
-        if (!checkUserExists) return sendError( event, createError({ statusCode: 400, statusMessage: "User not exists !" }));
+        const checkUserExists = await MReadUnique('users', { select: ['id'] }, { where: { id: id } });
+        if (isEmptyObject(checkUserExists)) return sendError( event, createError({ statusCode: 400, statusMessage: "User not exists !" }));
         if (email || phone) {
             let query: object = {};
             if (email) query = { ...query, ...{ email: email } };
             if (phone) query = { ...query, ...{ phone: phone } };
-            const checkUnique = await MRead("users", null, {where: { OR: [query] }});
+            const checkUnique = await MReadUnique("users", { select: ['id'] }, buildQueryOptions(query, 'OR'));
             if (!isEmptyObject(checkUnique)) return sendError( event, createError({ statusCode: 400, statusMessage: "Email or Phone is exists !" }));
         }
         const user = await MUpdate('users', id, data);

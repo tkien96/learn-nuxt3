@@ -4,7 +4,7 @@ export const tranformerUser = async (data: IUser | IUser[] | null) => {
     if (data === null) return null;
     return Array.isArray(data)
         ? await data.map((item, index) => ({
-              '#': item.id,
+              _id: item.id,
               full_name: item.name,
               phone_number: item.phone,
               email: item.email,
@@ -14,7 +14,7 @@ export const tranformerUser = async (data: IUser | IUser[] | null) => {
               updated_at: item.updated_at,
           }))
         : await {
-              '#': data.id,
+              _id: data.id,
               full_name: data.name,
               phone_number: data.phone,
               email: data.email,

@@ -10,3 +10,5 @@ export interface IParams {
 export interface IWhere {
     where: { [key: string]: any } | { [key: string]: any }[]
 }
+
+export interface IPrismaOptions extends IParams, IWhere {}

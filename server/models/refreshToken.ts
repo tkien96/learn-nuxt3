@@ -1,4 +1,4 @@
-import { MCreate, prisma } from ".";
+import { MCreate } from ".";
 import { IRefreshToken } from "../types/refreshToken";
 
 export const createRefreshToken = async (refreshToken: IRefreshToken | null) => {

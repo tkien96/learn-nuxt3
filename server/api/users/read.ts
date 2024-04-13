@@ -1,4 +1,3 @@
-import { buildQueryOptions, isEmptyObject } from "~/server/utils/helper";
 import { MRead } from "~/server/models";
 import { tranformerUser } from "~/server/models/users";
 import { IParams, IWhere } from "~/server/types";
@@ -19,9 +18,8 @@ export default defineEventHandler(async (event) => {
             delete query?.page_size
         }
         let users: IUser | IUser[];
-        if (!isEmptyObject(query)) where = buildQueryOptions(query);
+        if (!isEmptyObject(query)) where = buildQueryOptions(query, 'AND');
         users = await MRead('users', params, where);
-        
         return { status: 200, data: await tranformerUser(users), message: "Successfully!" };
     } catch (error) {
         console.error("Error: ", error);

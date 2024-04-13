@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { IParams, IWhere } from "../types";
+import { IParams, IPrismaOptions, IWhere } from "../types";
 
 export const prisma = new PrismaClient({
     log: ["query"],
@@ -22,8 +22,8 @@ export const MRead = async (
     where?: IWhere | null
 ) => {
     try {
-        const options = buildPrismaQueryOptions(params, where)
-        return await (prisma as any)[model].findMany(options);
+        const options: IPrismaOptions = buildPrismaQueryOptions(params, where)
+        return await (prisma as any)[model].findMany(options || {});
     } catch (error) {
         console.error("Error: ", error);
         throw error;
@@ -32,10 +32,10 @@ export const MRead = async (
 
 export const MReadUnique = async(
     model: string,
-    params: IParams,
+    params: IParams | null,
     where: IWhere
 ) => {
-    const options = buildPrismaQueryOptions(params, where)
+    const options: IPrismaOptions = buildPrismaQueryOptions(params, where)
     return await (prisma as any)[model].findUnique(options);
 }
 
@@ -62,7 +62,7 @@ export const MDelete = async (model: string, id: number) => {
     }
 };
 
-export const buildPrismaQueryOptions = (params?: IParams | null, where?: IWhere | null) => {
+export const buildPrismaQueryOptions = (params?: IParams | null, where?: IWhere | null): IPrismaOptions => {
     const queryOptions: any = [];
     if (params) {
         if (params.take) queryOptions.take = params.take;
@@ -79,6 +79,6 @@ export const buildPrismaQueryOptions = (params?: IParams | null, where?: IWhere 
             };
         }
     }
-    if (where) queryOptions.where = where;
+    if (where) queryOptions.where = where.where;
     return queryOptions;
 };
